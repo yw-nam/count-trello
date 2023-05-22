@@ -1,4 +1,4 @@
-package counter
+package model
 
 type Result struct {
 	Order     int
@@ -46,7 +46,7 @@ func (c *Card) hasLabel(targetLabel string) bool {
 	return false
 }
 
-func countCardsHavingLabel(label string, cards []Card) int {
+func CountCardsHavingLabel(label string, cards []Card) int {
 	count := 0
 	for _, c := range cards {
 		if c.hasLabel(label) {

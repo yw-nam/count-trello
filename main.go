@@ -6,7 +6,9 @@ import (
 	"os"
 	"sort"
 
+	"github.com/yw-nam/count-trello/api_client"
 	"github.com/yw-nam/count-trello/counter"
+	"github.com/yw-nam/count-trello/model"
 )
 
 func mustGetEnv(key string) string {
@@ -23,12 +25,14 @@ func main() {
 	boardId := mustGetEnv("BOARD_ID")
 	targetLabel := mustGetEnv("LABEL")
 
-	trelloApi := counter.NewCounter(token, apiKey, boardId, targetLabel)
-	result := trelloApi.GetResults()
+	trelloApi := api_client.NewTrelloApi(token, apiKey, boardId, targetLabel)
+	counter := counter.NewCounter(trelloApi)
+
+	result := counter.GetResults()
 	printCardsCount(result)
 }
 
-func printCardsCount(results counter.ResultSlice) {
+func printCardsCount(results model.ResultSlice) {
 	sort.Sort(results)
 	for _, res := range results {
 		fmt.Printf("%02d. %s: %d\n", res.Order+1, res.ListName, res.CardCount)

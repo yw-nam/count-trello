@@ -6,13 +6,13 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/yw-nam/count-trello/api_client"
+	"github.com/yw-nam/count-trello/api"
 )
 
-var dummyApi api_client.ApiClient
+var client api.Client
 
 func TestMain(m *testing.M) {
-	dummyApi = api_client.NewDummyApi()
+	client = api.NewDummyClient()
 	os.Exit(m.Run())
 }
 
@@ -22,8 +22,8 @@ func TestGetCardCounts(t *testing.T) {
 		title        string
 		testCounter  *counter
 	}{
-		{true, "get counts", NewCounter(dummyApi, "Platform")},
-		{false, "get counts with wrong label", NewCounter(dummyApi, "No Exist Label")},
+		{true, "get counts", NewCounter(client, "Platform")},
+		{false, "get counts with wrong label", NewCounter(client, "No Exist Label")},
 	} {
 		t.Run(tc.title, func(t *testing.T) {
 			assert := assert.New(t)

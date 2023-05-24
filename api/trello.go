@@ -1,4 +1,4 @@
-package api_client
+package api
 
 import (
 	"encoding/json"
@@ -16,7 +16,7 @@ type trello struct {
 	boardId string
 }
 
-func NewTrelloApi(token, apiKey, boardId string) *trello {
+func NewTrelloClient(token, apiKey, boardId string) *trello {
 	return &trello{
 		token:   token,
 		apiKey:  apiKey,

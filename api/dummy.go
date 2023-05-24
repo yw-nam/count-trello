@@ -1,4 +1,4 @@
-package api_client
+package api
 
 import (
 	"encoding/json"
@@ -18,7 +18,7 @@ type dummy struct {
 	respGetCardsByList map[string]string
 }
 
-func NewDummyApi() *dummy {
+func NewDummyClient() *dummy {
 	return &dummy{
 		respGetList: fmt.Sprintf(respListFmt, listId01, listId02),
 		respGetCardsByList: map[string]string{

@@ -1,8 +1,8 @@
-package api_client
+package api
 
 import "github.com/yw-nam/count-trello/models"
 
-type ApiClient interface {
+type Client interface {
 	GetList() []models.List
 	GetCards(listId string) []models.Card
 }

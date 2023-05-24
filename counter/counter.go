@@ -1,16 +1,16 @@
 package counter
 
 import (
-	"github.com/yw-nam/count-trello/api_client"
+	"github.com/yw-nam/count-trello/api"
 	"github.com/yw-nam/count-trello/models"
 )
 
 type counter struct {
 	targetLabel string
-	apiClient   api_client.ApiClient
+	apiClient   api.Client
 }
 
-func NewCounter(api api_client.ApiClient, targetLabel string) *counter {
+func NewCounter(api api.Client, targetLabel string) *counter {
 	return &counter{
 		apiClient:   api,
 		targetLabel: targetLabel,

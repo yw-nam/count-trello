@@ -44,6 +44,11 @@ func (a *dummy) GetCards(listId string) []models.Card {
 	return cards
 }
 
+func (a *dummy) GetCreateAction(card models.Card) models.Action {
+	// TODO 구현
+	return models.Action{}
+}
+
 const respListFmt string = `[
     {
         "id": "%s",

@@ -29,6 +29,9 @@ func main() {
 	counter := counter.NewCounter(apiClient, targetLabel)
 
 	printCardsCounts(counter.GetCardCounts())
+
+	fmt.Println("\n[2차] count 기간별 개수.. (아직 오래걸림..)")
+	counter.GetCardCountsByWeeks()
 }
 
 func printCardsCounts(results models.CardCountSlice) {

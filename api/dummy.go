@@ -8,17 +8,14 @@ import (
 	"github.com/yw-nam/count-trello/models"
 )
 
-const (
-	listId01 string = "559fb0c36ef933f0ca0e2729"
-	listId02 string = "5f433946d90bd37728a66e61"
-)
-
 type dummy struct {
 	respGetList        string
 	respGetCardsByList map[string]string
 }
 
 func NewDummyClient() *dummy {
+	listId01 := "559fb0c36ef933f0ca0e2729"
+	listId02 := "5f433946d90bd37728a66e61"
 	return &dummy{
 		respGetList: fmt.Sprintf(respListFmt, listId01, listId02),
 		respGetCardsByList: map[string]string{

@@ -7,27 +7,25 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/yw-nam/count-trello/model"
+	"github.com/yw-nam/count-trello/models"
 )
 
 type trello struct {
 	token   string
 	apiKey  string
 	boardId string
-	label   string
 }
 
-func NewTrelloApi(token, apiKey, boardId, label string) *trello {
+func NewTrelloApi(token, apiKey, boardId string) *trello {
 	return &trello{
 		token:   token,
 		apiKey:  apiKey,
 		boardId: boardId,
-		label:   label,
 	}
 }
 
-func (a *trello) GetList() []model.List {
-	lists := []model.List{}
+func (a *trello) GetList() []models.List {
+	lists := []models.List{}
 	urlGetLists := fmt.Sprintf("https://api.trello.com/1/boards/%s/lists/open?key=%s&token=%s", a.boardId, a.apiKey, a.token)
 	if jsonData, err := getRespJson(urlGetLists); err != nil {
 		log.Fatal(err)
@@ -39,9 +37,9 @@ func (a *trello) GetList() []model.List {
 	return lists
 }
 
-func (a *trello) GetResult(order int, list model.List, ch chan<- model.Result) {
-	cards := []model.Card{}
-	urlGetCards := fmt.Sprintf("https://api.trello.com/1/lists/%s/cards?key=%s&token=%s&fields=name,labels", list.Id, a.apiKey, a.token)
+func (a *trello) GetCards(listId string) []models.Card {
+	cards := []models.Card{}
+	urlGetCards := fmt.Sprintf("https://api.trello.com/1/lists/%s/cards?key=%s&token=%s&fields=name,labels", listId, a.apiKey, a.token)
 	jsonData, err := getRespJson(urlGetCards)
 	if err != nil {
 		log.Fatal(err)
@@ -49,14 +47,7 @@ func (a *trello) GetResult(order int, list model.List, ch chan<- model.Result) {
 	if err := json.Unmarshal(jsonData, &cards); err != nil {
 		log.Fatal(err)
 	}
-
-	count := model.CountCardsHavingLabel(a.label, cards)
-	res := model.Result{
-		Order:     order,
-		ListName:  list.Name,
-		CardCount: count,
-	}
-	ch <- res
+	return cards
 }
 
 func getRespJson(url string) ([]byte, error) {

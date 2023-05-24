@@ -35,11 +35,21 @@ func (a *counter) GetCardCounts() models.CardCountSlice {
 
 func (a *counter) getCardCount(order int, list models.List, ch chan<- models.CardCount) {
 	cards := a.apiClient.GetCards(list.Id)
-	count := models.CountCardsHavingLabel(a.targetLabel, cards)
+	count := a.countCardsWithLabel(cards)
 	res := models.CardCount{
 		Order:     order,
 		ListName:  list.Name,
 		CardCount: count,
 	}
 	ch <- res
+}
+
+func (a *counter) countCardsWithLabel(cards []models.Card) int {
+	count := 0
+	for _, c := range cards {
+		if c.HasLabel(a.targetLabel) {
+			count += 1
+		}
+	}
+	return count
 }

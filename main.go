@@ -31,12 +31,35 @@ func main() {
 	printCardsCounts(counter.GetCardCounts())
 
 	fmt.Println("\n[2차] count 기간별 개수.. (아직 오래걸림..)")
-	counter.GetCardCountsByWeeks()
+	weekCount := counter.GetCardCountsByWeeks()
+	printCardsCountsByWeek(weekCount, 8)
+
 }
 
 func printCardsCounts(results models.CardCountSlice) {
 	sort.Sort(results)
 	for _, res := range results {
-		fmt.Printf("%02d. %s: %d\n", res.Order+1, res.ListName, res.CardCount)
+		fmt.Printf("%02d. %s: %d\n", res.Order+1, res.ListName, res.Total)
+	}
+}
+
+func printCardsCountsByWeek(results models.CardCountSlice, limit int) {
+	sort.Sort(results)
+	for _, res := range results {
+		fmt.Printf("=== %02d. %s: %d ===========\n", res.Order+1, res.ListName, res.Total)
+
+		beforeLimitCount := 0
+		for week := 0; week < limit; week++ {
+			if res.ByWeek[week] > 0 {
+				fmt.Printf(" >>> %4d주전 생성: %d\n", week, res.ByWeek[week])
+				beforeLimitCount += res.ByWeek[week]
+			}
+		}
+		fmt.Printf(" >>> %d주 보다 오래전 생성: %d\n", limit, res.Total-beforeLimitCount)
+
+		// // 전부 출력?
+		// for week, count := range res.ByWeek {
+		// 	fmt.Printf(">>> %4d주전 생성된 개수: %d\n", week, count)
+		// }
 	}
 }

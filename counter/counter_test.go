@@ -37,11 +37,11 @@ func TestGetCardCounts(t *testing.T) {
 			}
 
 			if tc.isExistLabel {
-				assert.Equal(2, results[0].CardCount)
-				assert.Equal(3, results[1].CardCount)
+				assert.Equal(2, results[0].Total)
+				assert.Equal(3, results[1].Total)
 			} else {
-				assert.Equal(0, results[0].CardCount)
-				assert.Equal(0, results[1].CardCount)
+				assert.Equal(0, results[0].Total)
+				assert.Equal(0, results[1].Total)
 			}
 		})
 	}

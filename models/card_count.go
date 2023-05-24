@@ -1,9 +1,10 @@
 package models
 
 type CardCount struct {
-	Order     int
-	ListName  string
-	CardCount int
+	Order    int
+	ListName string
+	Total    int
+	ByWeek   map[int]int
 }
 
 type CardCountSlice []CardCount

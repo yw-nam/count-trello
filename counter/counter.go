@@ -22,7 +22,8 @@ func (a *counter) GetCardCounts() models.CardCountSlice {
 
 	ch := make(chan models.CardCount, len(lists))
 	for i, list := range lists {
-		go a.getCardCount(i, list, ch)
+		list.Order = i
+		go a.getCardCount(list, ch)
 	}
 
 	results := []models.CardCount{}
@@ -33,11 +34,11 @@ func (a *counter) GetCardCounts() models.CardCountSlice {
 	return results
 }
 
-func (a *counter) getCardCount(order int, list models.List, ch chan<- models.CardCount) {
+func (a *counter) getCardCount(list models.List, ch chan<- models.CardCount) {
 	cards := a.apiClient.GetCards(list.Id)
 	count := a.countCardsWithLabel(cards)
 	res := models.CardCount{
-		Order:     order,
+		Order:     list.Order,
 		ListName:  list.Name,
 		CardCount: count,
 	}

@@ -18,3 +18,7 @@
     LABEL={보려는 라벨} \
     MAX_WEEK=8 \
     go run main.go
+
+## TODO
+
+- 2차 기능의 날짜 정합성 검증용 테스트 작성

@@ -92,7 +92,7 @@ func printCardsCounts(results models.CardCountSlice) {
 func printCardsCountsByWeek(results models.CardCountSlice, maxWeek int, baseDate time.Time) {
 	sort.Sort(results)
 	for _, res := range results {
-		fmt.Printf("=== %02d. %s: %d ===========\n", res.Order+1, res.ListName, res.Total)
+		fmt.Printf("\n=== %02d. %s: %d ===========\n", res.Order+1, res.ListName, res.Total)
 
 		if maxWeek < 0 {
 			// 정렬 없이 전부 출력
@@ -103,7 +103,7 @@ func printCardsCountsByWeek(results models.CardCountSlice, maxWeek int, baseDate
 			beforeLimitCount := 0
 			for week := 0; week < maxWeek; week++ {
 				if res.ByWeek[week] > 0 {
-					fmt.Printf(" >>> %4d주전 생성 (~%s): %d\n", week, getWeekAgoDay(baseDate, week), res.ByWeek[week])
+					fmt.Printf(" >>> %3d주전 생성 (~%s): %d\n", week, getWeekAgoDay(baseDate, week), res.ByWeek[week])
 					beforeLimitCount += res.ByWeek[week]
 				}
 			}

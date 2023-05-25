@@ -119,7 +119,7 @@ func (a *trello) getActions(cardId string, actionType string) []models.Action {
 func (a *trello) getRespJson(url string) ([]byte, error) {
 	if a.reqCount >= a.reqSpeed {
 		// trello api 속도제한: 100개/10초 : https://support.atlassian.com/trello/docs/api-rate-limits
-		fmt.Printf(" ... wait 10s : api-rate-limits (%dreq/10sec)\n", a.reqSpeed)
+		fmt.Printf(" ... wait 10s : api-rate-limits (%dreq/10sec)\n", a.reqSpeed) // 멈춰있는 거보다는 뭐라도 보이라고 출력..
 		time.Sleep(10 * time.Second)
 		a.reqCount = 0
 	}

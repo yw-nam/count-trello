@@ -1,7 +1,6 @@
 package counter
 
 import (
-	"log"
 	"time"
 
 	"github.com/yw-nam/count-trello/api"
@@ -11,12 +10,14 @@ import (
 type counter struct {
 	targetLabel string
 	apiClient   api.Client
+	baseDate    time.Time
 }
 
-func NewCounter(api api.Client, targetLabel string) *counter {
+func NewCounter(api api.Client, targetLabel string, baseDate time.Time) *counter {
 	return &counter{
 		apiClient:   api,
 		targetLabel: targetLabel,
+		baseDate:    baseDate,
 	}
 }
 
@@ -61,7 +62,7 @@ func (a *counter) countCardsWithLabel(cards []models.Card) int {
 func (a *counter) GetCardCountsByWeeks() models.CardCountSlice {
 	results := []models.CardCount{}
 	lists := a.apiClient.GetList()
-	for i, list := range lists {
+	for _, list := range lists {
 		total, byWeek := a.getCardCountByWeeks(list)
 		result := models.CardCount{
 			Order:    list.Order,
@@ -75,14 +76,6 @@ func (a *counter) GetCardCountsByWeeks() models.CardCountSlice {
 }
 
 func (a *counter) getCardCountByWeeks(list models.List) (int, map[int]int) {
-	locKst, err := time.LoadLocation("Asia/Seoul")
-	if err != nil {
-		log.Fatalf("fail to load time locale: %e", err)
-	}
-
-	now := time.Now()
-	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, locKst)
-
 	totalCount := 0
 	weekCount := map[int]int{}
 	cards := a.apiClient.GetCards(list.Id)
@@ -92,7 +85,7 @@ func (a *counter) getCardCountByWeeks(list models.List) (int, map[int]int) {
 		}
 		totalCount += 1
 		act := a.apiClient.GetCreateAction(card)
-		week := weeksAgo(today, act.Date)
+		week := weeksAgo(a.baseDate, act.Date)
 		weekCount[week] += 1
 	}
 	return totalCount, weekCount

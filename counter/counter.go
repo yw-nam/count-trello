@@ -60,22 +60,22 @@ func (a *counter) countCardsWithLabel(cards []models.Card) int {
 }
 
 func (a *counter) GetCardCountsByWeeks() models.CardCountSlice {
-	results := []models.CardCount{}
 	lists := a.apiClient.GetList()
-	for _, list := range lists {
-		total, byWeek := a.getCardCountByWeeks(list)
-		result := models.CardCount{
-			Order:    list.Order,
-			ListName: list.Name,
-			Total:    total,
-			ByWeek:   byWeek,
-		}
-		results = append(results, result)
+	ch := make(chan models.CardCount, len(lists))
+	for i, list := range lists {
+		list.Order = i
+		go a.getCardCountByWeeks(list, ch)
+	}
+
+	results := []models.CardCount{}
+	for i := 0; i < len(lists); i++ {
+		res := <-ch
+		results = append(results, res)
 	}
 	return results
 }
 
-func (a *counter) getCardCountByWeeks(list models.List) (int, map[int]int) {
+func (a *counter) getCardCountByWeeks(list models.List, ch chan<- models.CardCount) {
 	totalCount := 0
 	weekCount := map[int]int{}
 	cards := a.apiClient.GetCards(list.Id)
@@ -83,16 +83,24 @@ func (a *counter) getCardCountByWeeks(list models.List) (int, map[int]int) {
 		if !card.HasLabel(a.targetLabel) {
 			continue
 		}
-		totalCount += 1
 		act := a.apiClient.GetCreateAction(card)
+		if act.Date.After(a.baseDate) {
+			continue
+		}
 		week := weeksAgo(a.baseDate, act.Date)
 		weekCount[week] += 1
+		totalCount += 1
 	}
-	return totalCount, weekCount
+	ch <- models.CardCount{
+		Order:    list.Order,
+		ListName: list.Name,
+		Total:    totalCount,
+		ByWeek:   weekCount,
+	}
 }
 
-func weeksAgo(baseDate, targetDate time.Time) int {
-	duration := time.Since(targetDate)
+func weeksAgo(from, to time.Time) int {
+	duration := from.Sub(to)
 	weeksAgo := int(duration.Hours() / 24 / 7)
 	return weeksAgo
 }

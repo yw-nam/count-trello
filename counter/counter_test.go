@@ -4,6 +4,7 @@ import (
 	"os"
 	"sort"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/yw-nam/count-trello/api"
@@ -17,13 +18,15 @@ func TestMain(m *testing.M) {
 }
 
 func TestGetCardCounts(t *testing.T) {
+	now := time.Now()
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
 	for _, tc := range []struct {
 		isExistLabel bool
 		title        string
 		testCounter  *counter
 	}{
-		{true, "get counts", NewCounter(client, "Platform")},
-		{false, "get counts with wrong label", NewCounter(client, "No Exist Label")},
+		{true, "get counts", NewCounter(client, "Platform", today)},
+		{false, "get counts with wrong label", NewCounter(client, "No Exist Label", today)},
 	} {
 		t.Run(tc.title, func(t *testing.T) {
 			assert := assert.New(t)

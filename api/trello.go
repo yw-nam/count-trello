@@ -6,28 +6,32 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/yw-nam/count-trello/models"
 )
 
 type trello struct {
-	token   string
-	apiKey  string
-	boardId string
+	token    string
+	apiKey   string
+	boardId  string
+	reqCount int
+	reqSpeed int
 }
 
-func NewTrelloClient(token, apiKey, boardId string) *trello {
+func NewTrelloClient(token, apiKey, boardId string, reqSpeed int) *trello {
 	return &trello{
-		token:   token,
-		apiKey:  apiKey,
-		boardId: boardId,
+		token:    token,
+		apiKey:   apiKey,
+		boardId:  boardId,
+		reqSpeed: reqSpeed,
 	}
 }
 
 func (a *trello) GetList() []models.List {
 	lists := []models.List{}
 	urlGetLists := fmt.Sprintf("https://api.trello.com/1/boards/%s/lists/open?key=%s&token=%s", a.boardId, a.apiKey, a.token)
-	if jsonData, err := getRespJson(urlGetLists); err != nil {
+	if jsonData, err := a.getRespJson(urlGetLists); err != nil {
 		log.Fatal(err)
 	} else {
 		if err := json.Unmarshal(jsonData, &lists); err != nil {
@@ -40,7 +44,7 @@ func (a *trello) GetList() []models.List {
 func (a *trello) GetCards(listId string) []models.Card {
 	cards := []models.Card{}
 	urlGetCards := fmt.Sprintf("https://api.trello.com/1/lists/%s/cards?key=%s&token=%s&fields=id,name,labels", listId, a.apiKey, a.token)
-	jsonData, err := getRespJson(urlGetCards)
+	jsonData, err := a.getRespJson(urlGetCards)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -75,7 +79,7 @@ func (a *trello) getLastActions(cardId string) (models.Action, error) {
 	for page := 0; page < limit; page++ {
 		results := []models.Action{}
 		url := fmt.Sprintf("%s&page=%d", urlBase, page)
-		jsonData, err := getRespJson(url)
+		jsonData, err := a.getRespJson(url)
 		if err != nil {
 			return result, err
 		}
@@ -102,7 +106,7 @@ func (a *trello) getLastActions(cardId string) (models.Action, error) {
 func (a *trello) getActions(cardId string, actionType string) []models.Action {
 	results := []models.Action{}
 	url := fmt.Sprintf("https://api.trello.com/1/cards/%s/actions?key=%s&token=%s&filter=%s", cardId, a.apiKey, a.token, actionType)
-	jsonData, err := getRespJson(url)
+	jsonData, err := a.getRespJson(url)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -112,7 +116,14 @@ func (a *trello) getActions(cardId string, actionType string) []models.Action {
 	return results
 }
 
-func getRespJson(url string) ([]byte, error) {
+func (a *trello) getRespJson(url string) ([]byte, error) {
+	if a.reqCount >= a.reqSpeed {
+		// trello api 속도제한: 100개/10초 : https://support.atlassian.com/trello/docs/api-rate-limits
+		fmt.Printf(" ... wait 10s : api-rate-limits (%dreq/10sec)\n", a.reqSpeed)
+		time.Sleep(10 * time.Second)
+		a.reqCount = 0
+	}
+	a.reqCount += 1
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("fail to get request: %w", err)
